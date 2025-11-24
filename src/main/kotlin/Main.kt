@@ -1,40 +1,51 @@
-// Testing the extractValue function with different keys.
+
 fun main() {
     val config = """
-          user: user-123; role: admin;
-             authToken: token-xyz-789;
-         environment: production ; expiry:
-                     1672531199
-                                     """
+        user: user-123; role: admin;
+        authToken: token-xyz-789;
+        environment: production; expiry:
+        1672531199
+    """.trimIndent()
 
-    println(extractValue(config, "role"))
-    println(extractValue(config, "authToken"))
-    println(extractValue(config, "environment"))
-    println(extractValue(config, "hostname"))
-    println(extractValue(config, "expiry"))
+    println("=== Testing extractValue() ===")
+    println("role → ${extractValue(config, "role")}")
+    println("authToken → ${extractValue(config, "authToken")}")
+    println("environment → ${extractValue(config, "environment")}")
+    println("hostname → ${extractValue(config, "hostname")}")
+    println("expiry → ${extractValue(config, "expiry")}")
 }
 
-// This function searches the config text for a specific key
-// and returns its value if the key exists, otherwise returns null.
+// Splits the full config string into separate entries
+
+fun splitConfigToEntries(configText: String): List<String> {
+    return configText.split(";")
+}
+
+//  Trims a single entry
+
+fun trimEntry(entry: String): String {
+    return entry.trim()
+}
+
+//Extracts the value for a specific key.
+
 fun extractValue(input: String, key: String): String? {
 
-    val entries = input.split(";")
+    val entries = splitConfigToEntries(input)
 
-    for (entry in entries) {
+    entries.forEach { entry ->
+        val trimmed = trimEntry(entry)
 
-        val trimmedEntry = entry.trim()
+        val keyAndValue = trimmed.split(":")
 
-        val keyValue = trimmedEntry.split(":")
+        if (keyAndValue.size == 2) {
+            val (extravtKey, extractValue) = keyAndValue.map { it.trim() }
 
-        if (keyValue.size == 2) {
-
-            val (entryKey, entryValue) = keyValue.map { it.trim() }
-
-            if (entryKey.equals(key, ignoreCase = true)) {
-                return entryValue
+            if (extravtKey.equals(key, ignoreCase = true)) {
+                return extractValue
             }
         }
     }
 
-    return null
+    return null  // if no key was matched
 }
